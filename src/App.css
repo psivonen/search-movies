@@ -5,9 +5,10 @@
 .main {
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   align-items: center;
   padding: 1rem 1rem;
   min-height: 100vh;
-  width: min(100%, 2000px);
+  width: min(100%, 1000px);
   margin: auto;
 }
