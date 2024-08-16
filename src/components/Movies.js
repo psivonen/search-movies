@@ -1,12 +1,13 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import {
   Listbox,
   ListboxButton,
   ListboxOption,
   ListboxOptions,
 } from "@headlessui/react";
-import { CheckIcon, ChevronDownIcon } from "@heroicons/react/24/solid";
+import { CheckIcon, ChevronDownIcon, XMarkIcon } from "@heroicons/react/24/solid";
 import axios from "axios";
+import clsx from "clsx";
 
 export default function Movies() {
   const [theatres, setTheatres] = useState([]);
@@ -16,7 +17,7 @@ export default function Movies() {
   const [query, setQuery] = useState("");
   const [selectedTheatre, setSelectedTheatre] = useState("");
   const [isSubmitted, setIsSubmitted] = useState(false); // Track if the form has been submitted
-  const [selectedGenre, setSelectedGenre] = useState("");
+  const [selectedGenres, setSelectedGenres] = useState([]);
 
   const genres = [
     { id: 1, genre: "Sci-fi" },
@@ -51,7 +52,11 @@ export default function Movies() {
   }, []);
 
   // Fetch shows based on selected theatre or search query when the form is submitted
-  const fetchShows = async (theatreId = "", searchQuery = "", genreId = "") => {
+  const fetchShows = async (
+    theatreId = "",
+    searchQuery = "",
+    selectedGenres = []
+  ) => {
     try {
       const response = await axios.get("https://www.finnkino.fi/xml/Schedule", {
         params: { area: theatreId },
@@ -75,21 +80,32 @@ export default function Movies() {
             ?.textContent || "",
       }));
 
-      // Filter based on search query and genre
+      // Filter based on search query and genres
       const filtered = shows.filter((show) => {
         const matchesQuery = searchQuery
           ? show.title.toLowerCase().includes(searchQuery.toLowerCase())
           : true;
 
-        const matchesGenre = genreId
-          ? show.showGenres
-              .toLowerCase()
-              .includes(
-                genres.find((g) => g.id === genreId)?.genre.toLowerCase() || ""
-              )
-          : true;
+        const showGenres = show.showGenres
+          .split(",")
+          .map((genre) => genre.trim().toLowerCase());
 
-        return matchesQuery && matchesGenre;
+        const matchesGenres =
+          selectedGenres.length > 0
+            ? selectedGenres.some(
+                (genreId) =>
+                  genres
+                    .find((genre) => genre.id === genreId)
+                    ?.genre.toLowerCase() &&
+                  showGenres.includes(
+                    genres
+                      .find((genre) => genre.id === genreId)
+                      ?.genre.toLowerCase()
+                  )
+              )
+            : true;
+
+        return matchesQuery && matchesGenres;
       });
 
       // Update state
@@ -104,7 +120,17 @@ export default function Movies() {
   const handleSearchSubmit = (e) => {
     e.preventDefault();
     setIsSubmitted(true); // Set form as submitted
-    fetchShows(selectedTheatre, query, selectedGenre); // Fetch shows based on query and selected theatre
+    fetchShows(selectedTheatre, query, selectedGenres); // Fetch shows based on query and selected theatre
+  };
+
+  const handleGenreChange = (genreId) => {
+    setSelectedGenres((prevSelectedGenres) => {
+      if (prevSelectedGenres.includes(genreId)) {
+        return prevSelectedGenres.filter((id) => id !== genreId);
+      } else {
+        return [...prevSelectedGenres, genreId];
+      }
+    });
   };
 
   // Format date to dd/mm/yyyy
@@ -143,78 +169,70 @@ export default function Movies() {
                 : "Valitse alue/teatteri"}
               <ChevronDownIcon className="w-3 h-3" aria-hidden="true" />
             </ListboxButton>
-            <ListboxOptions className="absolute mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+            <ListboxOptions className="z-20 absolute mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
               {theatres.slice(1).map((area) => (
-                <ListboxOption
-                  key={area.id}
-                  className={({ selected }) =>
-                    `select-none relative py-2 pl-10 pr-4 hover:bg-blue-100 hover:text-blue-900 cursor-pointer ${
-                      selected
-                        ? "text-blue-900 bg-blue-100 font-medium"
-                        : "text-gray-900"
-                    }`
-                  }
-                  value={area.id}
-                >
+                <ListboxOption key={area.id} value={area.id} as={Fragment}>
                   {({ selected }) => (
-                    <>
-                      {area.name}
-                      {selected && (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                          <CheckIcon
-                            className="w-3 h-3 text-blue-600"
-                            aria-hidden="true"
-                          />
-                        </span>
+                    <div
+                      className={clsx(
+                        "select-none relative inset-y-0 left-0 flex items-center py-3 pl-3 hover:bg-blue-100 hover:text-blue-900 cursor-pointer",
+                        selected && "text-blue-900 bg-blue-100"
                       )}
-                    </>
+                    >
+                      <CheckIcon
+                        className={clsx(
+                          "w-3 h-3 mr-2",
+                          !selected && "invisible"
+                        )}
+                      />
+                      {area.name}
+                    </div>
                   )}
                 </ListboxOption>
               ))}
             </ListboxOptions>
           </div>
         </Listbox>
-
-        <Listbox value={selectedGenre} onChange={setSelectedGenre}>
+        {/* Multi-select Genre Listbox */}
+        <Listbox value={selectedGenres} onChange={handleGenreChange}>
           <div className="relative w-full">
             <ListboxButton className="border p-2 w-full text-left flex items-center justify-between">
-              {selectedGenre
-                ? genres.find((genre) => genre.id === selectedGenre)?.genre
+              {selectedGenres.length > 0
+                ? selectedGenres
+                    .map(
+                      (genreId) =>
+                        genres.find((genre) => genre.id === genreId)?.genre
+                    )
+                    .join(", ")
                 : "Valitse lajityyppi"}
               <ChevronDownIcon className="w-3 h-3" aria-hidden="true" />
             </ListboxButton>
-            <ListboxOptions className="absolute mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
+            <ListboxOptions className="absolute z-10 mt-1 w-full bg-white shadow-lg max-h-60 rounded-md py-1 text-base ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none sm:text-sm">
               {genres.map((genre) => (
-                <ListboxOption
-                  key={genre.id}
-                  className={({ selected }) =>
-                    `select-none relative py-2 pl-10 pr-4 hover:bg-blue-100 hover:text-blue-900 cursor-pointer ${
-                      selected
-                        ? "text-blue-900 bg-blue-100 font-medium"
-                        : "text-gray-900"
-                    }`
-                  }
-                  value={genre.id}
-                >
+                <ListboxOption key={genre.id} value={genre.id} as={Fragment}>
                   {({ selected }) => (
-                    <>
-                      {genre.genre}
-                      {selected && (
-                        <span className="absolute inset-y-0 left-0 flex items-center pl-3">
-                          <CheckIcon
-                            className="w-3 h-3 text-blue-600"
-                            aria-hidden="true"
-                          />
-                        </span>
+                    <div
+                      className={clsx(
+                        "select-none relative inset-y-0 left-0 flex items-center py-3 pl-3 hover:bg-blue-100 hover:text-blue-900 cursor-pointer",
+                        selected && "text-blue-900 bg-blue-100"
                       )}
-                    </>
+                    >
+                      {selectedGenres.includes(genre.id) && (
+                        <XMarkIcon
+                          className={clsx(
+                            "w-3 h-3 mr-2",
+                          )}
+                        />
+                      )}
+                      {genre.genre}
+                    </div>
                   )}
                 </ListboxOption>
               ))}
             </ListboxOptions>
           </div>
         </Listbox>
-
+        {/* Submit button */}
         <button
           type="submit"
           className="bg-blue-500 text-white py-2 px-10 rounded"
@@ -243,7 +261,6 @@ export default function Movies() {
                   <h2 className="text-2xl font-bold">{show.title}</h2>
                   <p>{formatDate(show.dateTime)}</p>
                   <p>Kesto: {show.lengthMinutes} min</p>
-                  <p>Lajityyppi: {show.showGenres}</p>
                   <p>
                     klo:{" "}
                     {new Date(show.startTime).toLocaleTimeString([], {
