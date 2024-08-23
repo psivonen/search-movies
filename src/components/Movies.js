@@ -84,7 +84,7 @@ export default function Movies() {
       });
   }, []);
 
-  // Fetch shows based on selected theatre or search query when the form is submitted
+  // Fetch shows based on selected theatre and/or search query when the form is submitted
   const fetchShows = async (
     theatreId = "",
     searchQuery = "",
@@ -211,21 +211,18 @@ export default function Movies() {
                 : "Valitse alue/teatteri"}
               <ChevronDownIcon className="size-4" aria-hidden="true" />
             </ListboxButton>
-            <ListboxOptions className="p-2 z-20 absolute mt-3 w-full rounded-xl bg-gray-800 max-h-60 py-1text-left text-sm/6 text-white overflow-auto">
+            <ListboxOptions className="p-2 z-10 absolute mt-3 w-full rounded-xl bg-gray-800 max-h-60 py-1text-left text-sm/6 text-white overflow-auto">
               {theatres.slice(1).map((area) => (
                 <ListboxOption key={area.id} value={area.id} as={Fragment}>
                   {({ selected }) => (
                     <div
                       className={clsx(
                         "relative inset-y-0 left-0 flex items-center py-3 pl-3 rounded-lg hover:bg-white/5 hover:text-white cursor-pointer",
-                        selected && "text-white bg-white/10"
+                        selected && "text-white bg-white/5"
                       )}
                     >
                       <CheckIcon
-                        className={clsx(
-                          "size-4 mr-2",
-                          !selected && "invisible"
-                        )}
+                        className={clsx("size-4 mr-2", !selected && "hidden")}
                       />
                       {area.name}
                     </div>
@@ -249,18 +246,24 @@ export default function Movies() {
                 : "Valitse lajityyppi"}
               <ChevronDownIcon className="size-4" aria-hidden="true" />
             </ListboxButton>
-            <ListboxOptions className="absolute z-10 mt-1 w-full text-white bg-gray-800 shadow-lg max-h-60 rounded-md py-1 text-sm/6 ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
+            <ListboxOptions className="absolute z-10 mt-3 w-full text-white rounded-lg bg-gray-800 shadow-lg max-h-60 p-2 text-sm/6 ring-1 ring-black ring-opacity-5 overflow-auto focus:outline-none">
               {genres.map((genre) => (
                 <ListboxOption key={genre.id} value={genre.id} as={Fragment}>
-                  {({ selected }) => (
+                  {({ focus }) => (
                     <div
                       className={clsx(
-                        "select-none relative inset-y-0 left-0 flex items-center py-3 pl-3 hover:bg-white/5 cursor-pointer",
-                        selected && "text-white"
+                        "relative inset-y-0 left-0 flex items-center py-3 pl-3 rounded-lg cursor-pointer",
+                        // Apply hover background when the item is hovered and not selected
+                        focus &&
+                          !selectedGenres.includes(genre.id) &&
+                          "hover:bg-white/5",
+                        // Apply background for selected items
+                        selectedGenres.includes(genre.id) && "bg-white/5"
                       )}
                     >
+                      {/* Icon appears only when the genre is selected */}
                       {selectedGenres.includes(genre.id) && (
-                        <XMarkIcon className={clsx("size-4 mr-2")} />
+                        <XMarkIcon className="w-4 h-4 mr-2" />
                       )}
                       {genre.genre}
                     </div>
@@ -324,7 +327,9 @@ export default function Movies() {
                         <p className="text-gray-500 text-sm">{show.theatre}</p>
                         {/* Display synopsis if available */}
                         {event?.synopsis && (
-                          <p className="text-sm sm:text-base mt-5 text-gray-500">{event.synopsis}</p>
+                          <p className="text-sm sm:text-base mt-5 text-gray-500">
+                            {event.synopsis}
+                          </p>
                         )}
                       </div>
                     </li>
