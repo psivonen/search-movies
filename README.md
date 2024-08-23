@@ -1,3 +1,10 @@
+# Search movies - Finnkino API
+
+Search for movies from Finnkino's offer using a search term and/or by selecting a region or theater.
+
+- <b>Finnkino XML:</b> https://www.finnkino.fi/xml
+- <b>Live demo:</b> Coming soon...
+
 # Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
