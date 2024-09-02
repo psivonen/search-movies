@@ -303,6 +303,7 @@ export default function Movies() {
                       key={show.id}
                       className="flex flex-col sm:flex-row gap-10 items-center rounded border-b border-b-white/10 pb-10"
                     >
+                      {/* Display movie poster */}
                       {show.imageUrl && (
                         <img
                           src={show.imageUrl}
@@ -311,12 +312,15 @@ export default function Movies() {
                         />
                       )}
                       <div className="flex flex-col">
-                        <p className="text-gray-500 text-sm">
+                        {/* Display date */}
+                        <p className="text-gray-400 text-sm">
                           {formatDate(show.dateTime)}
                         </p>
+                        {/* Display movie title */}
                         <h2 className="text-2xl sm:text-4xl font-bold">
                           {show.title}
                         </h2>
+                        {/* Display start time */}
                         <p className="text-xl sm:text-3xl font-bold">
                           klo:{" "}
                           {new Date(show.startTime).toLocaleTimeString([], {
@@ -324,10 +328,11 @@ export default function Movies() {
                             minute: "2-digit",
                           })}
                         </p>
-                        <p className="text-gray-500 text-sm">{show.theatre}</p>
+                        {/* Display theatre */}
+                        <p className="text-gray-400 text-sm">{show.theatre}</p>
                         {/* Display synopsis if available */}
                         {event?.synopsis && (
-                          <p className="text-sm sm:text-base mt-5 text-gray-500">
+                          <p className="text-sm sm:text-base mt-5 text-gray-400">
                             {event.synopsis}
                           </p>
                         )}
