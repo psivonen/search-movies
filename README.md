@@ -3,7 +3,7 @@
 Search for movies from Finnkino's offer using a search term and/or by selecting a region or theater.
 
 - <b>Finnkino XML:</b> https://www.finnkino.fi/xml
-- <b>Live demo:</b> Coming soon...
+- <b>Live demo:</b> https://psivonen.github.io/search-movies/
 
 # Getting Started with Create React App
 
