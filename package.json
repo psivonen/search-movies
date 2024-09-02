@@ -1,5 +1,6 @@
 {
   "name": "search-movies",
+  "homepage": "https://psivonen.github.io/search-movies",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
