@@ -5,7 +5,7 @@ import Footer from "./components/Footer";
 function App() {
   return (
     <main className="main">
-      <div className="flex gap-8 mt-28 flex-col w-full">
+      <div className="flex gap-8 mt-4 flex-col w-full">
         <div className="flex flex-col gap-5 pt-10">
           <h1 className="text-4xl lg:text-5xl font-bold text-white">
             Elokuvien haku

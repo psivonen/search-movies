@@ -283,6 +283,7 @@ export default function Movies() {
       </form>
 
       <div className="w-full">
+        {/* Loading icon */}
         {isLoading ? (
           <span className="loader"></span>
         ) : (
@@ -330,7 +331,7 @@ export default function Movies() {
                         </p>
                         {/* Display theatre */}
                         <p className="text-gray-400 text-sm">{show.theatre}</p>
-                        {/* Display synopsis if available */}
+                        {/* Display short synopsis if available */}
                         {event?.synopsis && (
                           <p className="text-sm sm:text-base mt-5 text-gray-400">
                             {event.synopsis}
